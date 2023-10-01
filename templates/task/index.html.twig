@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Task Controller{% endblock %}
+
+{% block body %}
+<style>
+</style>
+
+<h2>Add your task</h2>
+{{ form(task_form) }}
+
+{% for task in tasks %}
+<h4>{{ task.title }}</h4>
+{% endfor %}
+{% endblock %}
