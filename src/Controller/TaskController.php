@@ -29,6 +29,8 @@ class TaskController extends AbstractController
 
             $em->persist($task);
             $em->flush();
+
+            return $this->redirect('task');
         }
 
         return $this->render('task/index.html.twig', [
