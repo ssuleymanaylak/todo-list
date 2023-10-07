@@ -10,6 +10,6 @@
 {{ form(task_form) }}
 
 {% for task in tasks %}
-<h4>{{ task.title }}</h4>
+<h4><a href="{{ path('app_task_show', {id: task.id}) }}">{{ task.title }}</a></h4>
 {% endfor %}
 {% endblock %}

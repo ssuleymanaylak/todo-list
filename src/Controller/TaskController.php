@@ -38,4 +38,12 @@ class TaskController extends AbstractController
             'tasks' => $taskRepository->findAll(),
         ]);
     }
+
+    #[Route('/task/{id}', name: 'app_task_show')]
+    public function show(Task $task): Response
+    {
+        return $this->render('task/show.html.twig', [
+            'task' => $task,
+        ]);
+    }
 }
