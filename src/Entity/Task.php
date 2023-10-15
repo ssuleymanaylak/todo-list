@@ -62,4 +62,16 @@ class Task
 
         return $this;
     }
+
+    public function getStatusAsString(): string
+    {
+        return $this->status->value;
+    }
+
+    public function setStatusAsString(string $status): static
+    {
+        $this->status = Status::from($status);
+
+        return $this;
+    }
 }
