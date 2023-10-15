@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Status;
 use App\Entity\Task;
 use App\Form\TaskType;
+use App\Form\TaskUpdateType;
 use App\Repository\TaskRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,8 +43,10 @@ class TaskController extends AbstractController
     #[Route('/task/{id}', name: 'app_task_show')]
     public function show(Task $task): Response
     {
+        $form = $this->createForm(TaskUpdateType::class, $task);
         return $this->render('task/show.html.twig', [
             'task' => $task,
+            'task_form' => $form,
         ]);
     }
 }
