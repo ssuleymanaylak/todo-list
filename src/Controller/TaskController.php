@@ -41,9 +41,17 @@ class TaskController extends AbstractController
     }
 
     #[Route('/task/{id}', name: 'app_task_show')]
-    public function show(Task $task): Response
+    public function show(Task $task, Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(TaskUpdateType::class, $task);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            return $this->redirect('/task');
+        }
+
         return $this->render('task/show.html.twig', [
             'task' => $task,
             'task_form' => $form,
