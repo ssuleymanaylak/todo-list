@@ -7,6 +7,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Workflow\WorkflowInterface;
 
@@ -40,6 +43,19 @@ class TaskUpdateType extends AbstractType
                 )
             ->add('submit', SubmitType::class)
         ;
+
+        $taskStateMachine = $this->taskStateMachine;
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($task, $taskStateMachine) {
+            $data = $event->getData();
+            $transitionName = $data['transitionName'];
+
+            if (!$taskStateMachine->can($task, $transitionName)) {
+                $event->getForm()->addError(new FormError('Status transition is not allowed'));
+                return;
+            }
+
+            $taskStateMachine->apply($task, $transitionName);
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
