@@ -31,6 +31,8 @@ class TaskController extends AbstractController
             $em->persist($task);
             $em->flush();
 
+            $this->addFlash('notice', 'Successfully added');
+
             return $this->redirect('task');
         }
 
@@ -48,6 +50,8 @@ class TaskController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+
+            $this->addFlash('notice', 'Successfully edited');
 
             return $this->redirect('/task');
         }
