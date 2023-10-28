@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Status;
 use App\Entity\Task;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,11 +18,25 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TaskRepository extends ServiceEntityRepository
 {
+    public const TASKS_PER_PAGE = 5;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Task::class);
     }
 
+    public function getTaskPaginator(int $offset): Paginator
+    {
+        $qb = $this->createQueryBuilder('t')
+        ->where('t.status = :new')
+        ->setParameter('new', Status::New)
+        ->orderBy('t.createdAt', 'DESC')
+        ->setMaxResults(self::TASKS_PER_PAGE)
+        ->setFirstResult($offset)
+        ->getQuery();
+
+        return new Paginator($qb);
+    }
 //    /**
 //     * @return Task[] Returns an array of Task objects
 //     */

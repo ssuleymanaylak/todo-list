@@ -14,10 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/task')]
 class TaskController extends AbstractController
 {
-    #[Route('/task', name: 'app_task')]
-    public function index(Request $request, EntityManagerInterface $em, TaskRepository $taskRepository): Response
+    public function __construct(private readonly EntityManagerInterface $em) {
+    }
+
+    #[Route('', name: 'app_task')]
+    public function index(Request $request, TaskRepository $taskRepository): Response
     {
         $task = new Task();
         $form = $this->createForm(TaskType::class, $task);
@@ -28,28 +32,32 @@ class TaskController extends AbstractController
                 ->setStatus(Status::New)
                 ->setCreatedAt(new DateTimeImmutable());
 
-            $em->persist($task);
-            $em->flush();
+            $this->em->persist($task);
+            $this->em->flush();
 
             $this->addFlash('notice', 'Successfully added');
 
             return $this->redirect('task');
         }
 
+        $offset = max(0, $request->query->getInt('offset', 0));
+        $tasks = $taskRepository->getTaskPaginator($offset);
         return $this->render('task/index.html.twig', [
             'task_form' => $form,
-            'tasks' => $taskRepository->findAll(),
+            'tasks' => $tasks,
+            'previous' => $offset - TaskRepository::TASKS_PER_PAGE,
+            'next' => min(count($tasks), $offset + TaskRepository::TASKS_PER_PAGE),
         ]);
     }
 
-    #[Route('/task/{id}', name: 'app_task_show')]
-    public function show(Task $task, Request $request, EntityManagerInterface $em): Response
+    #[Route('/{id}', name: 'app_task_show')]
+    public function show(Task $task, Request $request): Response
     {
         $form = $this->createForm(TaskUpdateType::class, $task);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $this->em->flush();
 
             $this->addFlash('notice', 'Successfully edited');
 
