@@ -12,4 +12,13 @@
 {% for task in tasks %}
 <p><a href="{{ path('app_task_show', {id: task.id}) }}">{{ task.title }}</a></p>
 {% endfor %}
+
+<hr/>
+
+{% if previous >= 0 %}
+    <a href="{{ path('app_task', {offset: previous}) }}">Previous</a>
+{% endif %}
+{% if next < tasks|length %}
+    <a href="{{ path('app_task', {offset: next}) }}">Next</a>
+{% endif %}
 {% endblock %}
