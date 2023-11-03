@@ -14,4 +14,12 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('h2', 'Add your task');
     }
+
+    public function testCanSeeTasks(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/task');
+
+        $this->assertCount(2, $crawler->filter('p a'));
+    }
 }
