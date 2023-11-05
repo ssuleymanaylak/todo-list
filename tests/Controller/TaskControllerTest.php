@@ -22,4 +22,18 @@ class TaskControllerTest extends WebTestCase
 
         $this->assertCount(2, $crawler->filter('p a'));
     }
+
+    public function testCanAddTest(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/task');
+
+        $client->submitForm('Submit', [
+            'task[title]' =>  'Created from test task',
+        ]);
+
+        $this->assertResponseRedirects();
+        $client->followRedirect();
+        $this->assertSelectorExists('a:contains("Created from test task")');
+    }
 }
