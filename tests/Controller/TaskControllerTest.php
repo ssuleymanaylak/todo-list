@@ -20,7 +20,7 @@ class TaskControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/task');
 
-        $this->assertCount(2, $crawler->filter('p a'));
+        $this->assertCount(5, $crawler->filter('p a'));
     }
 
     public function testCanAddTest(): void
@@ -35,5 +35,16 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseRedirects();
         $client->followRedirect();
         $this->assertSelectorExists('a:contains("Created from test task")');
+    }
+
+    public function testCanGoToNextPage(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/task');
+
+        $client->clickLink('Next');
+
+        $this->assertSelectorNotExists('a:contains("1 task")');
+        $this->assertSelectorExists('a:contains("6 task")');
     }
 }

@@ -12,18 +12,13 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $task = new Task();
-        $task->setTitle('1 task')
-        ->setCreatedAt(new DateTimeImmutable())
-        ->setStatus(Status::New);
-        $manager->persist($task);
-
-
-        $task2 = new Task();
-        $task2->setTitle('2 task')
-        ->setCreatedAt(new DateTimeImmutable())
-        ->setStatus(Status::New);
-        $manager->persist($task2);
+        for ($i = 1; $i <= 10; $i++) {
+            $task = new Task();
+            $task->setTitle($i . ' task')
+            ->setCreatedAt(new DateTimeImmutable())
+            ->setStatus(Status::New);
+            $manager->persist($task);
+        }
 
         $manager->flush();
     }
