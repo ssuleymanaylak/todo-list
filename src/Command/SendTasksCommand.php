@@ -8,8 +8,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Notifier\Notification\Notification;
-use Symfony\Component\Notifier\NotifierInterface;
+use Symfony\Component\Notifier\Bridge\Telegram\Reply\Markup\Button\InlineKeyboardButton;
+use Symfony\Component\Notifier\Bridge\Telegram\Reply\Markup\InlineKeyboardMarkup;
+use Symfony\Component\Notifier\Bridge\Telegram\TelegramOptions;
+use Symfony\Component\Notifier\ChatterInterface;
+use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Scheduler\Attribute\AsPeriodicTask;
 
 #[AsCommand(
@@ -21,7 +24,7 @@ class SendTasksCommand extends Command
 {
     public function __construct(
         private readonly TaskRepository $taskRepository,
-        private readonly NotifierInterface $notifier,
+        private readonly ChatterInterface $chatter,
     ) {
         parent::__construct();
     }
@@ -30,7 +33,17 @@ class SendTasksCommand extends Command
     {
         $tasks = $this->taskRepository->findBy(['status' => Status::New], ['createdAt' => 'ASC'], 3);
         foreach ($tasks as $task) {
-            $this->notifier->send(new Notification($task->getTitle(), ['chat/telegram']));
+            $options = (new TelegramOptions())
+            ->replyMarkup((new InlineKeyboardMarkup())
+                ->inlineKeyboard([
+                    (new InlineKeyboardButton('To Done'))
+                    ->callbackData(json_encode(['id' => $task->getId(), 'transition' => 'to_done'])),
+                    (new InlineKeyboardButton('To Rejected'))
+                    ->callbackData(json_encode(['id' => $task->getId(), 'transition' => 'to_rejected'])),
+                ])
+            );
+
+            $this->chatter->send(new ChatMessage($task->getTitle(), $options));
         }
 
         return Command::SUCCESS;
